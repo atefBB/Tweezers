@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+</head>
+<body>
+	<form action="/order/make" method="POST">
+		<input name="full_name" type="text">
+
+		<input type="radio" name="delivery" value="courier"> Courier
+		<input type="radio" name="delivery" value="pickup"> Pickup
+
+		<select name="payment">
+			<option value="electronic_money">Electronic money</option>
+			<option value="bank_transfer">Bank transfer</option>
+		</select>
+
+		<input type="submit" value="Сheckout">
+	</form>
+</body>
+</html>
