@@ -29,6 +29,10 @@ class Crawler extends Document
         $this->uri = $currentUri;
         $this->baseHref = $baseHref ?: $currentUri;
 
+        if (($currentUri === null) and (filter_var($html, FILTER_VALIDATE_URL) !== false)) {
+            $this->uri = $html;
+        }
+
         parent::__construct($html);
     }
 
