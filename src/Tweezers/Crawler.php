@@ -107,8 +107,9 @@ class Crawler extends Document
     }
 
     /**
-     * @param string CSS selector
-     * @param array
+     * @param string $selector CSS selector
+     * @param array  $rules
+     * @param bool   $wrapElement
      *
      * @return NodeList
      */
