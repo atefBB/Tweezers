@@ -2,7 +2,7 @@
 
 namespace Tweezers\Field;
 
-use DiDom\Element;
+use Tweezers\Element;
 
 abstract class FormField extends Element implements FormFieldInterface
 {

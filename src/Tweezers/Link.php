@@ -2,8 +2,6 @@
 
 namespace Tweezers;
 
-use DiDom\Element;
-
 class Link extends Element
 {
     /**

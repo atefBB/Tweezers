@@ -4,7 +4,7 @@ namespace Tests\Crawler;
 
 use Tests\TestCase;
 use Tweezers\NodeList;
-use DiDom\Element;
+use Tweezers\Element;
 
 class NodeListTest extends TestCase
 {

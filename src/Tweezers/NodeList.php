@@ -2,8 +2,6 @@
 
 namespace Tweezers;
 
-use DiDom\Element;
-
 class NodeList implements \Countable, \IteratorAggregate
 {
     /**
@@ -19,7 +17,7 @@ class NodeList implements \Countable, \IteratorAggregate
     /**
      * Constructor.
      *
-     * @param \DOMNodeList|\DOMElement|\DiDom\Element|array|null $nodes An array of nodes
+     * @param Element|\DOMNodeList|\DOMElement|array|null $nodes An array of nodes
      */
     public function __construct($nodes = null)
     {
@@ -41,7 +39,7 @@ class NodeList implements \Countable, \IteratorAggregate
      * This method uses the appropriate specialized add*() method based
      * on the type of the argument.
      *
-     * @param \DOMNodeList|\DOMElement|\DiDom\Element|array|null $node A node
+     * @param Element|\DOMNodeList|\DOMElement|array|null $node A node
      *
      * @throws \InvalidArgumentException When node is not the expected type.
      */
@@ -56,7 +54,7 @@ class NodeList implements \Countable, \IteratorAggregate
         } elseif (is_array($node)) {
             $this->addNodes($node);
         } elseif (null !== $node) {
-            throw new \InvalidArgumentException(sprintf('Expecting a DOMNodeList or DiDom\Element instance, an array, or null, but got "%s".', is_object($node) ? get_class($node) : gettype($node)));
+            throw new \InvalidArgumentException(sprintf('Expecting a DOMNodeList or Tweezers\Element instance, an array, or null, but got "%s".', is_object($node) ? get_class($node) : gettype($node)));
         }
     }
 
@@ -77,7 +75,7 @@ class NodeList implements \Countable, \IteratorAggregate
     /**
      * Adds an array of \DOMNode instances to the list of nodes.
      *
-     * @param \DOMElement[]|\DiDom\Element[] $nodes An array of \DOMNode instances
+     * @param Element[]|\DOMElement[] $nodes An array of \DOMNode instances
      */
     public function addNodes(array $nodes)
     {
@@ -89,7 +87,7 @@ class NodeList implements \Countable, \IteratorAggregate
     /**
      * Adds a \DOMNode instance to the list of nodes.
      *
-     * @param \DOMElement|\DiDom\Element $node A \DOMElement or \DiDom\Element instance
+     * @param Element|\DOMElement $node A \DOMElement or Element instance
      */
     public function addNode($node)
     {
@@ -98,7 +96,7 @@ class NodeList implements \Countable, \IteratorAggregate
         }
 
         if (!$node instanceof \DOMElement) {
-            throw new \InvalidArgumentException(sprintf('Nodes set in a NodeList must be DOMElement or DiDom\Element  instances, "%s" given.', get_class($node)));
+            throw new \InvalidArgumentException(sprintf('Nodes set in a NodeList must be DOMElement or Tweezers\Element  instances, "%s" given.', get_class($node)));
         }
 
         if ($this->document !== null && $this->document !== $node->ownerDocument) {
@@ -120,7 +118,7 @@ class NodeList implements \Countable, \IteratorAggregate
     /**
      * @param int $position
      *
-     * @return \DiDom\Element|null
+     * @return Element|null
      */
     public function getNode($position)
     {
@@ -130,7 +128,7 @@ class NodeList implements \Countable, \IteratorAggregate
     }
 
     /**
-     * @param \DOMElement|\DiDom\Element $node A node
+     * @param Element|\DOMElement $node A node
      *
      * @return bool
      */
@@ -146,7 +144,7 @@ class NodeList implements \Countable, \IteratorAggregate
     /**
      * Returns array with all nodes.
      * 
-     * @return \DiDom\Element[]
+     * @return Element[]
      */
     public function all()
     {
@@ -156,7 +154,7 @@ class NodeList implements \Countable, \IteratorAggregate
     /**
      * Returns the first node of the current selection.
      *
-     * @return \DiDom\Element
+     * @return Element
      */
     public function first()
     {
@@ -166,7 +164,7 @@ class NodeList implements \Countable, \IteratorAggregate
     /**
      * Returns the last node of the current selection.
      *
-     * @return \DiDom\Element
+     * @return Element
      */
     public function last()
     {
@@ -177,15 +175,16 @@ class NodeList implements \Countable, \IteratorAggregate
      * Calls an anonymous function on each node of the list.
      *
      * @param \Closure $closure An anonymous function
+     * @param mixed $userdata Will be passed as the third parameter to the callback
      *
      * @return array An array of values returned by the anonymous function
      */
-    public function each(\Closure $closure)
+    public function each(\Closure $closure, $userdata = null)
     {
         $data = array();
 
         foreach ($this->all() as $index => $node) {
-            $data[] = $closure($node, $index);
+            $data[] = $closure($node, $index, $userdata);
         }
 
         return $data;
@@ -267,6 +266,14 @@ class NodeList implements \Countable, \IteratorAggregate
     }
 
     /**
+     * @return bool
+     */
+    public function isEmpty()
+    {
+        return $this->count() == 0;
+    }
+
+    /**
      * @return \ArrayIterator
      */
     public function getIterator()
@@ -277,7 +284,7 @@ class NodeList implements \Countable, \IteratorAggregate
     /**
      * Returns the array of nodes.
      * 
-     * @return \DiDom\Element[]
+     * @return Element[]
      */
     public function toArray()
     {
@@ -288,5 +295,26 @@ class NodeList implements \Countable, \IteratorAggregate
         }
 
         return $nodes;
+    }
+
+    /**
+     * @param string $name The name of the method
+     * @param array  $arguments An array of arguments
+     * 
+     * @return mixed
+     */
+    public function __call($name, $arguments)
+    {
+        $allowedMethods = ['find', 'xpath', 'hasAttribute', 'getAttribute', 'attr', 'html', 'xml', 'text'];
+
+        if (!in_array($name, $allowedMethods)) {
+            throw new \BadMethodCallException(sprintf('Method [%s] does not exist', $name));
+        }
+
+        if ($this->count() === 0) {
+            throw new \OutOfBoundsException('Collection is empty.');
+        }
+
+        return call_user_func_array([$this->first(), $name], $arguments);
     }
 }
