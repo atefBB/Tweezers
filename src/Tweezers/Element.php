@@ -11,7 +11,7 @@ class Element extends DiDomElement
      * 
      * @return Crawler
      */
-    public function toDocument()
+    public function toDocument($encoding = 'UTF-8')
     {
         $document = new Crawler(null, null, null);
         $document->appendChild($this->node);
